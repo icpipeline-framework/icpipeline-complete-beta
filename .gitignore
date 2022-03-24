@@ -1,0 +1,10 @@
+*.log
+.env
+worker.config_live.env
+worker.public.ip
+test*
+deployments/*
+internet-identity*
+resources/util/easy-rsa
+resources/vpn-client-config
+.DS_Store

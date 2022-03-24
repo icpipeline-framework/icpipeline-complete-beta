@@ -1,0 +1,10 @@
+# Ignore everything in this directory
+*
+
+# Except this file
+# This is the AWS boilerplate json for the service role policy for the IAM instance profile required for every container instance.
+# So this resource is part of the working framework.
+!ecs_container_instance_trust_policydoc.json
+
+# and this file itself
+!.gitignore
