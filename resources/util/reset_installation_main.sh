@@ -130,11 +130,6 @@ f="${icpm_dir}/reset_installation_ic.sh"
 touch ${f} && echo "#!/bin/bash" > ${f} && chmod +x ${f} && echo $'\n' >> ${f}
 
 
-# Set DFX_VERSION env var 0.8.4 ... this is temporary insurance pending version parity.
-echo "# FYI, since you're here under the covers: we set your DFX_VERSION env var to DFX 0.8.4" >> ${f}
-echo "# It's for only a moment while we run these canister calls." >> ${f}
-echo "# We're storing its current value and we'll leave it the way we found it." >> ${f}
-echo "dfx_version_save=$(echo \$DFX_VERSION) && export DFX_VERSION=0.8.4" >> ${f}
 echo $'\n' >> ${f}
 echo "echo \"Stopping data canister ${icpm_canister_id}...\"" >> ${f}
 echo "dfx canister --network ic stop ${icpm_canister_id}" >> ${f}
@@ -144,10 +139,6 @@ echo "echo \"Stopping assets canister ${icpm_assets_canister_id}...\"" >> ${f}
 echo "dfx canister --network ic stop ${icpm_assets_canister_id}" >> ${f}
 echo "echo \"Deleting assets canister ${icpm_assets_canister_id}...\"" >> ${f}
 echo "dfx canister --network ic delete ${icpm_assets_canister_id}" >> ${f}
-# Now restore the user's DFX_VERSION env var back to the way we found it ... just in case.
-echo $'\n' >> ${f}
-echo "# ...now returning your DFX_VERSION env var to its original state (in most cases it's not set to anything)." >> ${f}
-echo "export DFX_VERSION=\${dfx_version_save}" >> ${f}
 echo $'\n' >> ${f}
 echo "echo" >> ${f}
 echo "echo \"Canister calls have been executed.\"" >> ${f}
