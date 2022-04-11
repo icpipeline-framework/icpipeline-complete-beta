@@ -1,16 +1,17 @@
 ### Welcome to ICPipeline
 
-It is highly recommended for new users to do a test iteration -- one build-and-destroy, end to end.  It's quick and painless, and it's the best way to get a real sense of what it does and how it works.
+Warmest greetings to all IC folk.  We hope that ICPipeline will add value to your Internet Computer journey.  Your success is our success.
 
-The framework necessarily has quite a few moving pieces, which makes it all the more important to know that you're not married to anything.. You're not stuck in a rigid, monolithic construct, because it's cake to just blow it away and start clean.
+For new users, we recommend doing a test iteration of ICPipeline.  If you take the roughly-half-hour to do an install/uninstall of the simplest config, you'll know more than you'll get from reams of reading -- in terms of what ICPipeline is, what it does, and how it works.  The ability to wipe the slate clean, start fresh, iterate -- is a itself a key piece of the *why* of this framework.
 
-Doing so will A) help you get the feel of things, and B) acquaint you with how easy it is to roll back an installation.  The framework's flexibility, and the ability to simply "rewind", is very much a part of the overall value proposition.
+A complete, running framework setup has a few moving pieces to be sure, but it's very flexible, disposable, ephemeral, you name it.  You can run one ICPipeline indefinitely.  Or run one per-project.  Or run it 'til something goes sideways, flush and repeat.  Whatever works, is the point, and the framework will do that with you.
+
+You can reference our how-to playlist on YouTube any time before, during or after: <a href="https://www.youtube.com/watch?v=DlOplFmLWSQ&list=PLUNN54d-q9QMRT441IdOEC0b6RXKJUqOe">ICPipeline: Getting Started on YouTube</a>
 
 
-To do the recommended test installation, follow these steps:
+To do the recommended test installation, follow these steps.  You will need a cycles wallet with some cycles; your dedicated ICPM is a standard two-canister IC dapp.
 
-
-1). Clone the ICPipeline software, cd into the folder:
+1). Clone the complete framework and cd into the folder.  Note the `--recursive` flag, it's a modular framework structured into Git submodules:
 ```
 git clone --recursive https://github.com/icpipeline-framework/icpipeline-complete.git && cd icpipeline-complete
 ```
@@ -20,30 +21,26 @@ git clone --recursive https://github.com/icpipeline-framework/icpipeline-complet
 ./installer.sh
 ```
 
-In a sense, that's all there is to it, because you just follow the prompts from here.  "Clone and go" is the idea, and we've tried hard to make it that way.  The installer does all the work, inviting you to choose options as you go.  Most of your input is front-loaded -- meaning that the  info-gathering comes near the top, and *then* it executes based on your selections.
+... and just follow the prompts from here.  "Clone and go" is the idea.  The installer does the work, and you choose options as you go.  This is a loose play-by-play:
 
-First you'll read through the introductory/disclosure section, at your pleasure.  Just \<ENTER\> a time or three to advance.
+a) First, read through the introductory/disclosure section at your pleasure.  Just \<ENTER\> a time or three to advance.
+b) Next comes requirements verification -- if anything's missing on your machine, the installer will let you know.
+c) GitHub Auth token: \<ENTER\> to skip past this for now, we'll come back to it later.
+d) Enable password auth on your Workers: ENABLE, since this is just a test.
+e) Additional ports: \<ENTER\> to skip for now.
+f) Public vs Private Network Mode: choose PUBLIC for least possible friction, we'll just delete it anyway.
+g) Ingress CIDR range: \<ENTER\> to skip for now.
+h) Number of Workers: \<ENTER\> to accept the default of 2
+i) Copy SSH key: \<ENTER\> to skip for now (we enabled password auth anyway).
 
-Next come requirements verification, where the installer will confirm that the tools are present on your machine.  Pay attention here to your AWS profile.  The installer will display your profile information, which is important because your profile determines where the resources will be built, while providing the necessary AWS account permissions.  Truth be told, it will simplify matters if you have admin privileges.  Your profile needs to be able to build, manage and delete resources relating to VPC and ECS/Fargate.  And, depending on the options you select, VPN and EC2 resources may also come into play.  We're a small shop and we have not yet sorted out a detailed *least privilege* baseline.  Meantime, it will be a plus if you can pretty much swing the hammer in your AWS account.  
+And that's it.  The installer will take it from here.  When it completes in 5-8 minutes, you'll have:
 
-Other than that, the requirements will be givens for most IC folk -- Node, Docker, the Canister SDK, AWS CLI, Git.  One item most of you may not have is JQ (`brew install jq`), which is a lightweight JSON parser for bash.  ICPipeline is basically a tool for using other tools, and these are the tools.
+1) Your dedicated Pipeline Manager canister dApp (ICPM), deployed on the Internet Computer.
+2) Two containerized Workers, which will have automatically registered with your ICPM by the time you log in.
+  
+Your installer terminal window will display the URL to your ICPM dapp.  Paste that into a browser, use the default Manager Code to log in, where you'll be required to change to your own Manager Code.
 
+Now might be a good time to look at that YT playlist if you haven't -- it walks you right through getting started with your ICPM dapp.
+<a href="https://www.youtube.com/watch?v=DlOplFmLWSQ&list=PLUNN54d-q9QMRT441IdOEC0b6RXKJUqOe">ICPipeline: Getting Started on YouTube</a>
 
-
-
-
-
-
-
-
-The installer will first display some introductory disclosure information, and then proceed to system requirements verification.  Just review your screen outputs and press \<ENTER\> to proceed when ready.
-
-To continue with a default, secure Private Network Mode, continue right here.  Or, for a quicker, easier Public Network Mode installation, skip down to that heading.
-
-
-3). Here, we suggest taking time to review the installer's introduction, full disclosure, requirements verification, etc. -- there is plenty of useful onscreen information in the terminal window.  Pay particular attention to your AWS profile details, especially if you use multiple named profiles with the AWS CLI.  The installer reads from your profile and displays the relevant parts for your confirmation.  You'll need robust permissions in the AWS account (details below).  Likewise, you'll want your Workers' container infrastructure to land in the right account, region, AZ, etc.  It works well with multi-account AWS setups.  We do, so it's well-tested in that respect.
-
-4). At the next pause, press `<ENTER>` to accept the default *Secure Network Mode*.
-The installer will verify the remaining requirements on your system, printing its findings to screen.  If it detects anything missing, it will tell you and offer guidance.  Again, it's worth following along with your screen output.
-
-5). The installer next displays a lists the remaining options you'll be need to select.  For the most part, these options pertain to the network architecture and security of your containerized Workers.  Now is a good time to pause and review this list, as each choice will materially affect your outcome.  If unsure about any of them, consult with a systems/network engineer on your team, or you can reach out to us at ICPipeline and we'll try to help.
+Please refer to the main README for more detailed information.  Reach out to us at any time if we can help you along on your IC journey.  We're on the same journey, and we'll probably pick your brain too.

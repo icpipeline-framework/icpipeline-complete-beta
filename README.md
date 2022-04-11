@@ -2,14 +2,16 @@
 
 Thanks for your interest in ICPipeline, a development catalyst for the Internet Computer (aka "the IC").  ICPipeline provides IC developers with better tools for collaboration, DevOps, CI/CD and more.  We think it will lower the barriers to entry for Internet Computer development, thereby helping to grow the IC development community.
 
-This document will mainly address the overall framework architecture, and getting started with the ICPipeline installer.
+The key reason for ICPipeline is that it provides IC builders with a backbone for pre-prod development (it deploys your IC canisters too).  It can be a game changer for those accustomed to having dev, QA, and staging environments.  If you have the sense of a gap between `dfx deploy` locally and `--network ic`, -- well, that rather large space in the SDLC is essentially the problem space that ICPipeline is aimed at.
+
+This document's focus is the overall framework architecture and getting started with the installer.  Details about the individual components are in the their respective module READMEs
 
 ![icpipeline-complete-framework-overview.png](https://icpipeline.com/media/documentation/icpipeline-complete-framework-overview.png)
 <p align="center" style="color:gray;font-size:14px;"><b>ICPipeline Complete Framework Overview</b></p>
 
 
 
-To jump right into ICPipeline installation, just follow these steps.
+To jump right into ICPipeline installation, just follow these steps.  Note that this is a more in-depth walkthrough, producing a secured, real-world ICPipeline implementation.  If you've already done the recommended test install in the quick-start README, this is a good place to pick up.
 
 1). Clone the ICPipeline software (and cd into the top-level directory):
 ```
@@ -20,49 +22,64 @@ git clone --recursive https://github.com/icpipeline-framework/icpipeline-complet
 ./installer.sh
 ```
 
-The installer will first verify some system requirements.  After reviewing your screen output, press \<ENTER\> to proceed.
+Read through the introductory output, and take note of the system requirements to be sure your machine has the required tools onboard.  You will additionally need a cycles wallet with ~8T cycles, since we're deploying your dedicated ICPM canister dapp as part of your installation.  The installer will verify your wallet and cycles along with the other requirements.
 
-To continue with a default, secure Private Network Mode, continue right here.  Or, for a quicker, easier Public Network Mode installation, skip down to that heading.
+You should review your screen output -- the information is readable and useful.  Pay particular attention to your AWS profile details, especially if you use multiple named profiles with the AWS CLI.  The installer reads from your profile and displays the relevant parts for your confirmation.  You'll need robust permissions in the AWS account.  Likewise, you'll want your Workers' container infrastructure to land in the right account, region, AZ, etc.
 
+Then press `<ENTER>` to proceed.
 
-3). Here, we suggest taking time to review the installer's introduction, full disclosure, requirements verification, etc. -- there is plenty of useful onscreen information in the terminal window.  Pay particular attention to your AWS profile details, especially if you use multiple named profiles with the AWS CLI.  The installer reads from your profile and displays the relevant parts for your confirmation.  You'll need robust permissions in the AWS account (details below).  Likewise, you'll want your Workers' container infrastructure to land in the right account, region, AZ, etc.  It works well with multi-account AWS setups.  We do, so it's well-tested in that respect.
+BTW the installer will prompt you if Docker isn't present *and* running.  If not, you'll have a chance to start it before continuing.  Do give it a moment to come all the way up.
 
-4). At the next pause, press `<ENTER>` to accept the default *Secure Network Mode*.
-The installer will verify the remaining requirements on your system, printing its findings to screen.  If it detects anything missing, it will tell you and offer guidance.  Again, it's worth following along with your screen output.
+3). ***Your GitHub auth token***
+The first item you'll supply is a GitHub auth token.  If you plan to use this installation to deploy IC projects from your private GitHub repos, ICPipeline will need a token in order to authenticate when fetching your code.  Just follow the prompts to paste one in and confirm.  Or, if deploying from public GitHub repos, just <ENTER> to skip.  Note that the installer will take what you give it, we do not validate this particular input.  So please provide either a valid token or nothing at all.
 
-5). The installer next displays a lists the remaining options you'll be need to select.  For the most part, these options pertain to the network architecture and security of your containerized Workers.  Now is a good time to pause and review this list, as each choice will materially affect your outcome.  If unsure about any of them, consult with a systems/network engineer on your team, or you can reach out to us at ICPipeline and we'll try to help.  
+4). ***Enable/Disable Password Auth***
+Next up, you'll be asked whether to enable password authentication on your ICPipeline Workers.  Each Worker is a Docker on an Ubuntu base, and there's an *icpipeline* system user on each Worker.  Key-based authentication is always configured, so really this choice is whether to allow both login methods.  Key-based auth is highly recommended.  The installer generates a key pair, and the private key is placed conveniently in /resources  Password validation (if applicable) enforces only a six-character minimum length.
 
-Enter your choices for these options as they appear, according to your preferences and requirements, using these brief notes as a guide (individual options are covered in further detail below).
+5). ***Customized Worker Ingress Ports*** (`<ENTER>` to skip)
+Next, you can enable remote access to your Workers on additional ports (other than the default ports used by the framework itself).  This will vary depending on the requirements of your own IC project(s).  If your projects communicate on ports other than the defaults, this is where you can enter them.  Bear in mind that the installer simply creates and configures an AWS security group here (tagged "ICPipeline Worker Security Group" in your AWS console).  So direct adjustments are easy if the need should should arise.
 
-- ***Your GitHub auth token***
-You may or may not need to enter a GitHub token on this pass.  If you plan to use this installation to deploy IC projects from your private GitHub repos, ICPipeline will need a token in order to fetch them.  Just follow the prompts to paste one in and confirm.  Or, if deploying from public GitHub repos, just <ENTER> to skip.  Note that the installer will take what you give it, we do not validate this particular input.  So enter a valid token or nothing at all.
+6). ***Private vs Public Network Mode***
+This one is the most significant choice you'll make during installation.  You're telling it whether to host your containerized Workers in a private network or a public network -- basically, whether or not they'll have public IP addresses (and all that that implies).  To be clear, your Workers are robustly networked in either case, each with its own out-facing, reachable network interface.  This is just whether they're *publicly* addressed or not.  Since this is "real world" installation that should be maximally secured, we're going with Private Network Mode.  Type and enter `PRIVATE`.  We'll add a VPN, so your privately-networked Workers will be fully reachable via SSH, browser etc.
 
-- ***Enable/Disable Password Auth***
-Here you choose whether to disable remote password authentication on your containerized Worker hosts.  They run Ubuntu, and we are configuring the *icpipeline* system user on each Worker.  Key-based authentication is always configured, so really this choice is whether to allow both login methods.  Key-based auth is not inconvenient, and highly recommended.  Password validation (if applicable) enforces only a six-character minimum length.
+7). ***Would You Like a VPN With That?***
+Let's go ahead and add that VPN.  Type/enter `VPN' here.  The installer will leverage OpenVPN tools and AWS services to create an E2E VPN.  The client config file will be ready to go in /resources/vpn-client-config where you can't miss it.  No edits or fiddling necessary, just drop that into any OpenVPN-based client and your tunnel will nail right up, directly into your Worker network.
 
-- *Customized Worker Ingress Ports* (\<ENTER\> to skip)
-This allows you to enable remote access to your Workers on additional ports (other than default ports 22 [SSH] and 8080 [DFX's HTTP proxy port]).  This will vary depending on the requirements of your own IC project(s).  Your project may well need to "talk" on ports other than the two defaults, and you should enter any such ports here.  Bear in mind that the installer simply creates and configures an AWS security group here (tagged "ICPipeline Worker Security Group" in your AWS console).  So direct adjustments are easy if the need should should arise.
+8). ***Fargate vs. ECS/EC2 Container Instances***
+You can host your Worker Dockers on either Fargate (i.e. purely as-a-service), or in/on EC2 container instances.  Operationally speaking, the primary distinctions are in terms of cost efficiencies.  You should do the reading to determine what approach works best for you in the long run.  For now we'll go with Fargate.  Type and enter `FARGATE`.  That's unless you preference for container instances, it works great either way.  Note that if you do go with container instances, you'll need to consider stuff like containers-per-instance.  In our default sizing (that's both instances and individual containers), it's basically two containers per instance.
 
-- ***Number of Workers***
-Enter the number of ICPipeline Workers you'd like the installer to create.
+9). ***Number of Workers***
+Enter the number of ICPipeline Workers you'd like the installer to create.  Again, reference the note above if using EC2 container instances.  If you select more Workers than your instances will accommodate, nothing will break.  But your Worker count may come up "short", since the instances can only hold what they can hold.
 
-- ***Would You Like a VPN With That?***
-When the installer nears completion, it will ask whether it should create a VPN for remote access to your (private-networked) Workers.  Type/enter `VPN` to have it build one.
+10). ***Copy SSH Key***
+Lastly it will ask if you want to copy your Worker SSH key to the standard place in your home directory.  Either way.  It just asks before doing anything outside the project directly, with respect to your privacy.
 
-When the installer is finished, just copy/paste the URL for your new ICPM into a browser and follow the prompts.
+And that's it.  The installer has what it needs to take it the rest of the way.  It's worth following along.  Your screen output is informative and explicit as it proceeds through the steps of your framework build.
 
-By the time you've logged into ICPM, your Workers should be up, registered and visible in your ICPM console.  Use the wizard to quickly set up your first Environment and Project (a demo Project is supplied).  Then you'll click "Deploy Now".  In the time your Worker takes to clone/build/deploy your project, it will available in a browser -- subject, of course, to network connectivity.  The ICPipeline Manager (ICPM) *README* explains browser access in conjunction with VPN and the ICPM access tools -- it is fairly straightforward and quite useable.
+First it will create the necessary network scaffolding in AWS -- VPC, subnet(s), security groups, route tables, etc. -- to support your Workers.
+
+Then it `npm` builds and deploys your ICPM canister dapp to the Internet Computer.
+
+Next, it swings back to AWS and adds container infrastructure (on the previous network infra) for your Worker Dockers.  It creates an ECS cluster, which is essentially the skeleton that your containers run on.  Then it builds your Worker image from the Dockerfile (and setup script) in your Worker module, and pushes the finished image to your private ECR repository.  Then it can run your Workers (however many you selected) from that image.  As your containers spin up, they'll automatically register with your ICPM dapp (by canister ID, which is encoded into your image).  By the time you get logged into ICPM, they'll already there, registered and ready take your task assignments from the ICPM dashboard.
+
+When the installer is finished it will display the URL for your new ICPM.  Just paste that into a browser and follow the prompts.  It will take you through changing the default passcode, which is required as the first order of business.
+
+By the time you logged into ICPM, your Workers will be up, registered and visible in your ICPM console.  Use the wizard to quickly set up your first Environment and Project (a demo Project is supplied).  Then you'll click "Deploy Now".  In the time your Worker takes to clone/build/deploy your project, it will available in a browser -- subject, of course, to network connectivity.  The ICPipeline Manager (ICPM) *README* explains browser access in conjunction with VPN and the ICPM access tools -- it is fairly straightforward and quite useable.
+
+If you haven't checked our "Getting Started" YouTube playlist, you may find it helpful to do that now.
+<a href="https://www.youtube.com/watch?v=DlOplFmLWSQ&list=PLUNN54d-q9QMRT441IdOEC0b6RXKJUqOe">ICPipeline: Getting Started on YouTube</a>
 
 For remote access to your Private Network Mode Workers, use the VPN and your Worker SSH key like so:
 
-- VPN: Your VPN client config file is located in `/resources/vpn-client-config`.  Import the client config file (`icpipeline_vpn_client_config.ovpn`) into an OpenVPN-based client.  The file is ready to go, the installer takes care of inserting the required client certificate.  Once your AWS Client VPN Endpoint is fully up and available (you can verify/monitor in the AWS console), just click to connect.
+- VPN: Your VPN client config file is located in `/resources/vpn-client-config`.  Import the client config file (`icpipeline_vpn_client_config.ovpn`) into an OpenVPN-based client.  The file is ready to go.  The installer has already inserted the required client certificate, so no editing or tweaking required.  Once your AWS Client VPN Endpoint is fully up and available (you can verify/monitor in the AWS console), just click to connect.
 
-- SSH: While connected to the VPN, SSH into any Worker with the private key generated by the installer.  Each Worker's IP private address is displayed in ICPM.  Your ssh key is in /resources/worker-ssh-key, and also in your home folder (if you instructed the installer to copy it for you).  For instance:
+- SSH: While connected to the VPN, SSH into any Worker using the private key generated by the installer.  Each Worker's IP address is displayed in ICPM.  Your SSH key is in /resources/worker-ssh-key, and (if you instructed the installer to copy it) it's also in your `~/.ssh` folder.  For instance:
 ```
 ssh icpipeline@10.0.100.XX -i ~/.ssh/id_ed25519_icpipeline
 ```
-In certain cases, your SSH-over-VPN connection may additionally act as a reverse tunnel for port-forwarded browser connections...blahblahblah.  ICPM has nice buttons and it's worked out to avoid causing you headaches.  Consult the ICPM *README* for a fuller explanation.
+In certain cases, your SSH-over-VPN connection may additionally act as a reverse tunnel for port-forwarded browser connections ... blahblahblah.  ICPM has nice buttons and it's worked out to be seamless without headaches for you.  Consult the ICPM *README* for a fuller explanation.
 
+Here we basically revisit what's in the quick-start README just in case you haven't seen that.  This covers the simpler path to a public-networked minimum friction installation.
 
 ### To Continue With a Quick/Easy Public Network Mode Installation:
 3). Select these options as the installer prompts you:
@@ -77,6 +94,8 @@ By the time you've logged into ICPM, your two Workers will probably be registere
 
 ***
 
+***Some Architectural Notes***
+
 ICPipeline is comprised of component modules.  The GitHub is structured accordingly (as a parent repo and *submodules*), as follows:
 - ***icpipeline-complete***: the main, top-level module.  Contains the installer code base, its modular helpers and admin tools for the framework.
 - ***manager***: ICPipeline Manager (aka ICPM), the dashboard/console d'app for managing ICPipeline.  Each implementation has a dedicated ICPM.  It is cloned, built (via *npm*) and deployed to the IC during each installation.
@@ -85,10 +104,9 @@ ICPipeline is comprised of component modules.  The GitHub is structured accordin
 
 Individual modules are covered in detail by their respective *README*s.  Full documentation for the framework will also be published at <a href="https://icpipeline.com/" target="_blank">ICPipeline.com</a>.  We are a small team and documentation will be ongoing.
 
-This diagram shows a thumbnail overview of an ICPipeline framework installation (in Private Network Mode specifically).  As you can see, it piggybacks certain *W2/cloud* resources, using them to underpin your network of containerized Internet Computer replica hosts.  And there's your multi-tiered CI/CD platform for the IC -- all yours in about a half-hour.  Just run the installer and start using it.
+The diagram at the head of this document shows a thumbnail overview of an ICPipeline framework installation (in Private Network Mode specifically).  As you can see, it piggybacks certain *W2/cloud* resources, using them to underpin your network of containerized Internet Computer replica hosts.  That's how ICPipeline creates your multi-tiered CI/CD platform for the IC -- all yours in about a half-hour.  Just run the installer and start using it.
 
-
-### More Info to Help You Get Started With ICPipeline
+***General Info to Help You Get Started With ICPipeline***
 ICPipeline offers straightforward setup/startup for new users.  It is built so you can simply clone the repo, run the installer, and you're done: with a working E2E framework that allows you to focus on your own projects.
  
 Your preferences are entered during installation; just follow the prompts.  On completion, the installer will display the URL for your Pipeline Manager d'app (ICPM), which it has deployed on the Internet Computer.  The installer will also:
@@ -96,18 +114,16 @@ Your preferences are entered during installation; just follow the prompts.  On c
 - pushes the image to your private ECR registry in AWS
 - run your containerized IC replica Workers (two by default, but as many as you tell it).  Each container will "phone home" on startup, registering itself automatically with your ICPM.
 
-When your installation concludes, your framework is fully up and running, per the diagram above.
+At your initial login to ICPM, you'll set up your authentication preferences, which include Internet Identity (highly recommended, not enforced).  And that's it; you can just start using the platform.  There's a sample project (it's just a copy of Dfinity's "Hello" IC starter project).  We suggest using that for your first deployment, just to get acquainted, but you don't have to (see the ICPM *README* for more detail).
 
-At your initial login to ICPM, you'll set up your authentication preferences, which include Internet Identity (highly recommended, not enforced).  And that's it; you can just start using the platform.  There's a sample project (just a copy of Dfinity's "Hello" IC starter).  We suggest using that for your first deployment, just to get acquainted, but you don't have to (see the ICPM *README* for more detail).
+You need to have the prerequisites installed (standard Node/React dev tools, see a detailed list below).  The installer verifies its requirements right at the top, and will try to guide you if anything is missing.  With requirements in order, installation should take 15-30 minutes (depending on your machine, network speed, etc.).
 
-Your machine should have the prerequisites installed (standard Node/React dev tools, see a detailed list below).  The installer verifies its requirements right at the top, and will try to guide you if anything is missing.  With requirements in order, installation should take 15-30 minutes (depending on your machine, network speed, etc.).
-
-Your installation will in one of two *Modes*: the default *Private Network Mode*, or the optional *Public Network Mode*.  Each has its own basic network architecture and overall security profile, mainly relating to your Worker replicas.  A detailed explanation is provided below, and that is worth a look before you choose (inline during installation).  To state the obvious, a private network will generally be more secure, while a public network will be more accessible and convenient on the whole.
+Your installation will in one of two *Network Modes*: *Private Network Mode*, or *Public Network Mode*.  Each has its own basic network architecture and overall security profile, mainly relating to your Worker replicas.  A detailed explanation is provided below, and that is worth a look before you decide.  In very general terms, a private network will generally be more secure, while a public network will be more accessible and convenient on the whole.
 
 - But *Private Network Mode is still convenient*, if you choose the VPN option (the installer builds it, soup to nuts).
 - And *Public Network Mode is still secure*, when you restrict remote access to only your IP address or range.
 
-There are other options too, all explained below.  In either mode, you can run a tight ship.
+There are other options too, all explained below.  You can run a tight ship in either mode.
 
 Please don't worry about getting everything perfect the first time out.  The entire framework can be rolled back very easily, to wipe the slate clean and start over.  As users ourselves, we love being able to *iterate*, just get the feel of things -- especially with new tools and lots of moving pieces (it's largely why we built this).  So there's no need to tiptoe around it:  forge ahead; make incorrect settings; try things; break stuff.  That is what it's here for.
 
@@ -116,9 +132,9 @@ Your working framework architecture will essentially straddle two environments:
 - The Internet Computer (where your ICPM d'app is deployed)
 - Your AWS account (where your containerized replicas Workers and their underlying infrastructure live)
 
-The installation process pulls in a third environment, i.e. your local machine.  It may be helpful to view the architecture in those three slices.
+During installation there's basically a third environment, i.e. your local machine.  It may be helpful to view the architecture in terms of all three main pieces.
 
-### ICPipeline Installation Requirements
+***ICPipeline Installation Requirements***
 ICPipeline is essentially a tool for using other tools, all or most of which you probably have already*.   Before installing ICPipeline, you should have these tools on your machine.
 - NodeJS/NPM (recommend even-numbered Node ^16, NPM ^7)
 - Dfinity's Canister SDK
@@ -129,53 +145,16 @@ ICPipeline is essentially a tool for using other tools, all or most of which you
 
 *JQ is one item that Node/React/IC engineers may need to install.  Our installer needs JQ, and you can `brew install jq` in just a few seconds.  It's a great tool to have in any case.
 
-#### An Important Note About Private Network Mode With Optional VPN
-(TL;DR You need OpenSSL 3 to use the VPN module; and yes, you'll probably need to upgrade because Mac OS default is 2.8.3.)
+***An Important Note About Private Network Mode With Optional VPN***
 
-In Private Network Mode framework installations, your Worker Dockers are deployed to a private-networked VPC in AWS.  To be clear, this type of installation  does *not* require a VPN in order to function fully.  The VPN option is there strictly to make your Workers more easily accessible.  That said, VPN facilitates browser access as well as SSH (e.g. when browser access goes through a port-forwarded SSH tunnel, etc.).  So, while it's not technically necessary for a functioning framework, VPN makes a big difference in Private Network Mode installations, and we think most users will want to take advantage of it.  We certainly do -- VPN is a no-brainer in our installations.  Which brings us around the barn to the point of this topic:
-
-Very recently, OpenVPN's Easy-RSA bundle (which our installer uses) has determined that it does not like Mac OS's standard version of OpenSSl, or, more specifically, the version of the LibreSSL library that it uses.  The bottom line is that, in order to use our VPN module, you'll probably need to upgrade OpenSSL with Homebrew (or by other means if you prefer).  We solved it this way (note that it's ZSH-specific.  For bash users, the $PATH settings will be via bash profile config):
-
-
-First, confirm whether you need this upgrade:
-`openssl version`
-
-If you have version 3.x, you should be good to go.  If (more likely) you have version 2.8.3, upgrade as follows.  In truth, this is probably a good move in any case.
-
-`brew install (or reinstall) openssl@3`
-
-`echo 'export PATH="/opt/homebrew/opt/openssl@3/bin:$PATH"' >> ~/.zshrc`
-
-`source ~/.zshrc`
-
-Then, `openssl version` again to confirm.  Our happy ending looks like this:
-`OpenSSL 3.0.2 15 Mar 2022 (Library: OpenSSL 3.0.2 15 Mar 2022)`
-
-You can see by the date (beware the Ides of March) that this is very recent indeed.  Prior to 3/15, everything was fine with Mac OS default version 2.8.3.  We're just sayin'.
-
-***
-
-## Hands-On With the Installer
-We'll describe how to run the installer, step-by-step, in two variations.  Either will produce a complete, functioning ICPipeline.  The first example represents the *quick start* approach, and it's a good way to get a first *rep*.  The second walkthrough will stand up a more secure, *real-world* implementation.  You can always *Reset* and just start over.  So go ahead and try things, see which way works best for you and your team.
-
-***
-
-
-Indeed, perhaps they're a little *too* available, depending on your policy requirements, aversion to risk, and so forth.  Read on for a more highly secured installation approach.
-
-[For more information on ICPM and how to use it, consult the ICPipeline Manager (ICPM) README.]
+In Private Network Mode framework installations, your Worker Dockers are deployed to a private-networked VPC in AWS.  To be clear, this type of installation  does *not* require a VPN in order to function fully.  The VPN option is there strictly to make your Workers more easily accessible.  That said, VPN facilitates browser access as well as SSH (e.g. when browser access goes through a port-forwarded SSH tunnel, etc.).  So, while it's not technically necessary for a functioning framework, VPN is a really big plus, almost a no-brainer if you haven't made other arrangements for access, in Private Network Mode installations.  We think most users will want to take advantage of it.  We certainly do -- our installations include VPN every time.
 
 **Shell Output and Pagination**
 As a general rule, our scripts are chatty (we're just trying to keep you in the loop), and they appreciate a roomy terminal.
 
 (This probably won't happen to you, but) wanting to be transparent with our fellow engineers, we generally print terminal outputs to screen.  But in certain cases, where output is verbose enough to force pagination, ergo user interaction (i.e. <ENTER> to page on through or Control-C to quit), we'll divert output to /dev/null.  However, because individual terminal/window setups vary widely, there's a degree of imprecision here (indeed, we actually came across it while using gigantic terminal fonts to make our demo videos).  Bottom line, if you encounter this -- that is to say, paginated output(s) to your terminal window requiring intervention to bypass -- it won't break anything but it's unintentional.  In the event, we'd suggest stretching your window as an immediate solve and, if you'll kindly pass the word along we'll fix, with our thanks.  Likewise, if better bash programmers than we have advice to offer, we are all ears.
 
-***
-
-
-***
-
-#### Installation and Configuration Options
+***Some Additional Notes on Configuration Options***
 
 **Network Mode Selection**
 This is most significant installation choice you'll make.  Either Network Mode may suit your needs (depends on your circumstances and requirements).  In practical terms, the differences pertain mainly to the network architecture and security profile of your containerized ICPipeline Workers.  As such, in addition to remote administration of your Workers, Network Mode will also affect browser access to your deployed *dev* and *QA* projects (*stage* and *prod* tiers deploy to the IC, where they're unaffected by this setting).
