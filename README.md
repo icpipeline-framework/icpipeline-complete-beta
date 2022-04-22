@@ -66,8 +66,10 @@ When the installer is finished it will display the URL for your new ICPM.  Just 
 
 By the time you logged into ICPM, your Workers will be up, registered and visible in your ICPM console.  Use the wizard to quickly set up your first Environment and Project (a demo Project is supplied).  Then you'll click "Deploy Now".  In the time your Worker takes to clone/build/deploy your project, it will available in a browser -- subject, of course, to network connectivity.  The ICPipeline Manager (ICPM) *README* explains browser access in conjunction with VPN and the ICPM access tools -- it is fairly straightforward and quite useable.
 
-If you haven't checked our "Getting Started" YouTube playlist, you may find it helpful to do that now.
-<a href="https://www.youtube.com/watch?v=DlOplFmLWSQ&list=PLUNN54d-q9QMRT441IdOEC0b6RXKJUqOe">ICPipeline: Getting Started on YouTube</a>
+If you haven't checked our "Getting Started" YouTube playlists, you may find those helpful now:
+<a href="https://www.youtube.com/watch?v=9oMyTTDvHGw&list=PLUNN54d-q9QMYLekS2Ew9x2E6nwIOwUvT">Installing the Framework</a>
+
+<a href="https://www.youtube.com/watch?v=CKc5dw0nqnI&list=PLUNN54d-q9QMgmv2QWExZWORqk1rtAyD2">Getting Started Using ICPipeline</a>
 
 For remote access to your Private Network Mode Workers, use the VPN and your Worker SSH key like so:
 

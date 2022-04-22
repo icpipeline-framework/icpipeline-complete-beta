@@ -6,7 +6,11 @@ For new users, we recommend doing a test iteration of ICPipeline.  If you take t
 
 A complete, running framework setup has a few moving pieces to be sure, but it's very flexible, disposable, ephemeral, you name it.  You can run one ICPipeline indefinitely.  Or run one per-project.  Or run it 'til something goes sideways, flush and repeat.  Whatever works, is the point, and the framework will do that with you.
 
-You can reference our how-to playlist on YouTube any time before, during or after: <a href="https://www.youtube.com/watch?v=DlOplFmLWSQ&list=PLUNN54d-q9QMRT441IdOEC0b6RXKJUqOe">ICPipeline: Getting Started on YouTube</a>
+You can reference our how-to playlists on YouTube at any time:
+
+<a href="https://www.youtube.com/watch?v=9oMyTTDvHGw&list=PLUNN54d-q9QMYLekS2Ew9x2E6nwIOwUvT">Installing the Framework</a>
+
+<a href="https://www.youtube.com/watch?v=CKc5dw0nqnI&list=PLUNN54d-q9QMgmv2QWExZWORqk1rtAyD2">Getting Started Using ICPipeline</a>
 
 
 To do the recommended test installation, follow these steps.  You will need a cycles wallet with some cycles; your dedicated ICPM is a standard two-canister IC dapp.
