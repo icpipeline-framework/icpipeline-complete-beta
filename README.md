@@ -21,6 +21,10 @@ git clone --recursive https://github.com/icpipeline-framework/icpipeline-complet
 ```
 ./installer.sh
 ```
+or the simple installer, which is less verbose and makes a bunch of choices for you.
+```
+./simple-install.sh
+```
 
 Read through the introductory output, and take note of the system requirements to be sure your machine has the required tools onboard.  You will additionally need a cycles wallet with ~8T cycles, since we're deploying your dedicated ICPM canister dapp as part of your installation.  The installer will verify your wallet and cycles along with the other requirements.
 

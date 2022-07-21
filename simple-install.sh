@@ -5,7 +5,7 @@
 
 # This is a utility var used for versioning across multiple repos.
 # AT NO TIME WILL NORMAL USE OF THE FRAMEWORK ENTAIL CHANGING OR TOUCHING THIS.
-git_repo_suffix=-dev
+git_repo_suffix=-beta
 
 # Utility functions and cosmetics.
 source ./resources/include/formatting.sh
