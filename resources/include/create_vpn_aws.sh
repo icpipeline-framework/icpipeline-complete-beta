@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # This module creates a VPN connection to an AWS VPN, like so:
 # -> Download the OpenVPN Easy-RSA bundle from Github
@@ -145,7 +145,7 @@ echo
 echo
 echo "Building local CA ..."
 echo
-(cd "${resources_dir}"/util/easy-rsa && echo -ne '\n' | "${easy_rsa_dir}"/easyrsa3/easyrsa build-ca nopass >> "${vpn_build_log}")
+(cd "${resources_dir}"/util/easy-rsa && echo -ne '\n' | "${easy_rsa_dir}"/easyrsa3/easyrsa --batch build-ca nopass >> "${vpn_build_log}")
 
 # *************************************************************************************************************
 # generate both server and client certificates

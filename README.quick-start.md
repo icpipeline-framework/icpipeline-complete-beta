@@ -17,7 +17,7 @@ To do the recommended test installation, follow these steps.  You will need a cy
 
 1). Clone the complete framework and cd into the folder.  Note the `--recursive` flag, it's a modular framework structured into Git submodules:
 ```
-git clone --recursive https://github.com/icpipeline-framework/icpipeline-complete.git && cd icpipeline-complete
+git clone --recursive https://github.com/icpipeline-framework/icpipeline-complete-beta.git && cd icpipeline-complete
 ```
 
 2). Run the installer:

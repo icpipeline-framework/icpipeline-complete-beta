@@ -15,7 +15,7 @@ To jump right into ICPipeline installation, just follow these steps.  Note that 
 
 1). Clone the ICPipeline software (and cd into the top-level directory):
 ```
-git clone --recursive https://github.com/icpipeline-framework/icpipeline-complete.git
+git clone --recursive https://github.com/icpipeline-framework/icpipeline-complete-beta.git
 ```
 2). Run the installer:
 ```
