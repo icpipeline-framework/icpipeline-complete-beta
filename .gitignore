@@ -8,3 +8,4 @@ internet-identity*
 resources/util/easy-rsa
 resources/vpn-client-config
 .DS_Store
+pki/*
