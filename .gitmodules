@@ -1,0 +1,9 @@
+[submodule "manager-beta"]
+	path = manager-beta
+	url = https://github.com/icpipeline-framework/manager-beta.git
+[submodule "worker-docker-beta"]
+	path = worker-docker-beta
+	url = https://github.com/icpipeline-framework/worker-docker-beta.git
+[submodule "uplink-beta"]
+	path = uplink-beta
+	url = https://github.com/icpipeline-framework/uplink-beta.git
